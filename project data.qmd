@@ -1,0 +1,66 @@
+---
+title: "Defensive behaviors of the Oriental armyworm Mythimna separata in response to different parasitoid species (Hymenoptera: Braconidae)"
+author: "O.Blessing-O.Amira-N.Aizada-SA.Sami-A.ALi"
+format: html
+editor: visual
+---
+
+## *Introdaction*
+
+Host-parasitoid interactions are dynamic evolutionary systems shaped by the survival stakes of both hosts and parasitoids. Parasitoids, whose development kills their hosts, drive the evolution of diverse host defenses, including morphological, chemical, and behavioral adaptations (Gross, 1993; Godfray, 1994). Among herbivorous insects, behavioral defenses such as evasive, aggressive, and associative actions are common and improve survival against parasitoids (Gentry & Dyer, 2002; Greeney, Dyer & Smilanich, 2012). These defenses are especially pronounced in species targeted by multiple parasitoids with varying attack strategies, creating complex selection pressures (Godfray, 1994; Hawkins, 1984). Host resistance also varies with age and size, with older larvae often being more effective in defense (Firlej et al., 2010; Kageyama & Sugiura, 2016).
+
+In agriculture, *Mythimna separata*, a migratory grain pest, offers an ideal model for studying host-parasitoid dynamics. Frequently parasitized by *Microplitis mediator* and *Meteorus pulchricornis*, these parasitoids employ distinct oviposition strategies: *M. mediator* climbs on the host, while *M. pulchricornis* stings from a distance (Yamamoto, Chau & Maeto, 2009). Despite their significance in pest control, the behavioral responses of *M. separata* larvae to these attack strategies are poorly understood.
+
+### *Why is this project interesting?*
+
+This study investigates how *M. separata* adjusts its behavioral defenses to two parasitoids with differing attack methods. Insights from this research could advance understanding of host-parasitoid coevolution and improve biological pest control, enhancing agriculture and environmental conservation.
+
+### *What is known?*
+
+*M. separata* is a major migratory pest causing crop losses in Asia, with outbreaks linked to seasonal migrations (Sharma, Sullivan & Bhatnagar, 2002; Jiang et al., 2014). *M. mediator* and *M. pulchricornis* are effective biological control agents for this pest (Wang et al., 1984; Arthur & Mason, 1986). While the parasitoids' oviposition behaviors are documented (Yamamoto, Chau & Maeto, 2009), little is known about how *M. separata* adapts its defensive behaviors to specific parasitoid strategies, highlighting a critical knowledge gap.
+
+### *Methodology*
+
+#### *1. Insect Preparations*
+
+-   *Host (Mythimna separata - Oriental Armyworm):*
+    -   Larvae were reared on a semi-artificial diet in controlled conditions.
+    -   Neonate larvae were housed in groups of 40–60 in glass jars.
+    -   Pupae were transferred to plastic boxes for adult emergence.
+    -   Adults were kept in cages with honey solution and provided with nylon ropes for egg laying. Eggs were collected, and larvae were reared to the 2nd or 3rd instar stage for experiments.
+-   *Parasitoids:*
+    -   *Microplitis mediator:* Obtained from the Research Institute of Agriculture and Forestry, Hebei province, China. Females were maintained in vials with honey solution. Larvae were exposed to parasitism by releasing two female wasps in a box with groups of host larvae. After 24 hours, parasitized larvae were reared until parasitoid pupation.
+    -   *Meteorus pulchricornis:* Laboratory stock was maintained using larvae collected from soybean fields and parasitized using M. separata as hosts. Wasps were reared on parasitized larvae and maintained similarly.
+
+#### *2. Experimental Setup*
+
+-   The experiment was conducted on *potted wheat seedlings* grown in peat moss-sand soil mixture.
+-   Each potted seedling was placed in a *transparent cylindrical cage* (12 cm high, 4.5 cm diameter) covered with nylon gauze.
+-   Larvae were weighed before placement on the plants. One hour later, a female parasitoid was released into the cage.
+
+#### *3. Behavioral Observations*
+
+-   Host and parasitoid behaviors were continuously observed for up to 30 minutes or until a predefined event occurred:
+    -   *Host Behaviors:*
+        -   Thrashing (head shaking).
+        -   Escaping (crawling away beyond three times its body length).
+        -   Dropping (falling off the plant or hanging by a silken thread).
+    -   *Parasitoid Behaviors:*
+        -   Ovipositor stinging (successful if insertion lasted more than one second and characteristic wing-flapping occurred).
+        -   Host-handling time (time from first contact to ovipositor withdrawal).
+
+#### *4. Data Collection*
+
+-   A total of 86 replicates (parasitoid-host interactions) were observed for each parasitoid species.
+-   Behaviors were recorded, with specific descriptions provided (e.g., thrashing frequency, success of ovipositor insertion).
+
+#### *5. Statistical Analysis*
+
+-   *Host Defensive Behaviors:*
+    -   Logistic regression was used to estimate the likelihood of escaping or dropping.
+    -   Linear regression analyzed the frequency of thrashing (adjusted for observation time).
+-   *Parasitoid Performance:*
+    -   Logistic regression analyzed ovipositor stinging probability.
+    -   Host-handling time was modeled using a gamma distribution.
+-   Robust standard errors were applied to account for potential overdispersion in the data.
+-   Analyses were conducted in *R software (version 3.3.1)*.
