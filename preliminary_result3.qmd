@@ -1,0 +1,157 @@
+---
+title: "Defensive Behaviour of M.separata in Response to Different Parasitoid species"
+author: "Blessing_Amira_Aizada_Sami_Ali"
+format: html
+editor: visual
+---
+
+```{r}
+# Install necessary packages
+# install.packages("readxl")
+#install.packages("openxlsx")
+#install.packages("plotly")
+library(readxl)
+library(plotly)
+# Install libraries if needed
+# install.packages(c("plotly", "dplyr", "rgl", "lattice"))
+library(plotly)
+library(rgl)
+library(dplyr)
+library(lattice)
+```
+
+# Extracting the Data
+
+```{r}
+# Set file path (replace with your actual file path)
+file_path <- "data/parasitoid.xlsx"
+
+d0 <- read_excel(file_path)
+```
+
+# A logistic regression analysis was performed to model the probability of stinging behavior in M. purchicronis based on host weight and thrashing frequency, with predictions visualized using interactive and static 3D surface plots.
+
+```{r}
+ # Example dataset (replace with actual data)
+        # Simulate data similar to what is shown
+        set.seed(123)
+        
+        # Variables for host weight and thrashing frequency
+        host_weight <- runif(100, 5, 35)       # Random body weights
+        thrash_freq <- runif(100, 10, 80)      # Random thrashing frequencies
+        
+        # Logistic model response variable: Probability of stinging
+        prob_sting <- 1 / (1 + exp(-(-1.5 + 0.05 * host_weight - 0.03 * thrash_freq))) # Logistic response
+        
+        # Create a binary outcome (stung = 1, no sting = 0)
+        stung <- rbinom(100, 1, prob_sting)
+        
+        # Combine into a dataframe
+        data <- data.frame(host_weight, thrash_freq, stung)
+        # Logistic regression model
+        logit_model <- glm(stung ~ host_weight + thrash_freq, family = binomial, data = data)
+        # Generate a grid of host_weight and thrash_freq values
+        weight_seq <- seq(min(data$host_weight), max(data$host_weight), length.out = 30)
+        thrash_seq <- seq(min(data$thrash_freq), max(data$thrash_freq), length.out = 30)
+        
+        # Create a grid of values
+        grid <- expand.grid(host_weight = weight_seq, thrash_freq = thrash_seq)
+        
+        # Predict probabilities based on the logistic model
+        grid$prob <- predict(logit_model, newdata = grid, type = "response")
+        # 3D surface plot with data points
+        plot_ly() %>%
+          add_trace(
+            x = grid$host_weight,
+            y = grid$thrash_freq,
+            z = grid$prob,
+            type = "mesh3d",
+            colors = "Red"
+          ) %>%
+          add_markers(
+            x = data$host_weight,
+            y = data$thrash_freq,
+            z = data$stung,
+            color = ~data$stung,
+            colors = c('red', 'darkred'),
+            size = 3
+          ) %>%
+          layout(
+            scene = list(
+              xaxis = list(title = "Host Weight"),
+              yaxis = list(title = "Host Thrashing Frequency"),
+              zaxis = list(title = "Probability of Stinging")
+            )
+          )
+        # 3D surface using persp3d
+        persp3d(
+          x = weight_seq,
+          y = thrash_seq,
+          z = matrix(grid$prob, nrow = 30),
+          col = "red", alpha = 0.7,
+          xlab = "Host Weight", ylab = "Thrashing Frequency", zlab = "Probability"
+        )
+        
+        # Add data points to the surface
+        points3d(
+          x = data$host_weight,
+          y = data$thrash_freq,
+          z = data$stung,
+          col = "darkred", size = 5
+        )
+
+```
+
+```{r}
+# Load necessary libraries
+library(readxl)
+library(rgl)
+library(dplyr)
+library(MASS)
+```
+
+```{r}
+
+library(plotly)
+
+# Generate 3D surface plot for predicted probabilities
+plot_ly() %>%
+  add_surface(
+    x = weight_seq,
+    y = thrash_seq,
+    z = z_matrix,
+    colorscale = "Greens"  # Surface color gradient
+  ) %>%
+  add_trace(
+    x = data$host_weight,
+    y = data$thrash_freq,
+    z = data$stung,
+    type = "scatter3d",
+    mode = "markers",
+    marker = list(
+      color = data$stung,         # Color points by stung outcome
+      colorscale = "Reds",        # Red for stung values
+      size = 5                    # Marker size
+    ),
+    name = "Data Points"
+  ) %>%
+  layout(
+    title = "Probability of Stinging",
+    scene = list(
+      xaxis = list(title = "Host Weight (mg)"),
+      yaxis = list(title = "Thrashing Frequency"),
+      zaxis = list(title = "Stinging Probability")
+    ),
+    annotations = list(
+      list(
+        text = "M. mediator",
+        x = mean(weight_seq),
+        y = mean(thrash_seq),
+        z = -0.05,
+        showarrow = FALSE,
+        font = list(size = 14, color = "black")
+      )
+    )
+  )
+
+```

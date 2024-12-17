@@ -1,0 +1,74 @@
+---
+title: "Defensive Behaviour of M.separata in Response to Different Parasitoid Species"
+author: "Blessing_Amira_Aizada_Sami_Ali"
+format: html
+editor: visual
+---
+
+# Extracting the Data
+
+```{r}
+# Set file path (replace with your actual file path)
+file_path <- "data/parasitoid.xlsx"
+
+d0 <- read_excel(file_path)
+```
+
+# A logistic regression analysis was conducted to evaluate the relationship between host weight and thrashing frequency as predictors of dropping behavior (Drop vs No Drop) in M. mediator. The model estimated the likelihood of dropping, and predicted probabilities were visualized in a histogram to compare the model's predictions with the observed drop behavior.
+
+```{r}
+# --- Filter data for M. mediator (mm) and Drop vs No Drop ---
+mediator_data_drop <- d0 %>% 
+  filter(wasp.species == "mm") %>%
+  select(host.weight, thrash.frequency, host.drop) %>%
+  mutate(Drop = ifelse(host.drop == 1, "Drop", "No Drop"))
+
+# --- Logistic Regression Model: Drop vs No Drop ---
+# Logistic regression model for Drop vs No Drop
+logit_model_drop <- glm(host.drop ~ host.weight + thrash.frequency, 
+                        data = mediator_data_drop, family = binomial(link = "logit"))
+
+# Displaying the summary of the logistic regression model
+summary(logit_model_drop)
+
+# Predicted probabilities from the Drop vs No Drop model
+mediator_data_drop$predicted_prob <- predict(logit_model_drop, type = "response")
+
+# Plotting predicted probabilities vs actual Drop status
+ggplot(mediator_data_drop, aes(x = predicted_prob, fill = Drop)) +
+  geom_histogram(position = "dodge", binwidth = 0.05, alpha = 0.7) + 
+  labs(title = "Predicted Probability of Drop vs Actual Drop for M. mediator",
+       x = "Predicted Probability", y = "Frequency") +
+  scale_fill_manual(values = c("Drop" = "blue", "No Drop" = "red")) +
+  theme_minimal()
+```
+
+# A logistic regression analysis was conducted to evaluate the relationship between host weight and thrashing frequency as predictors of dropping behavior (Drop vs No Drop) in M. purchicronis. The model estimated the likelihood of dropping, and predicted probabilities were visualized in a histogram to compare the model's predictions with the observed drop behavior.
+
+```{r}
+# --- M. pulchricornis (mp) - Drop vs No Drop ---
+# Filter data for M. pulchricornis (mp) and select relevant columns
+pulchricornis_data_drop <- d0 %>% 
+  filter(wasp.species == "mp") %>%
+  select(host.weight, thrash.frequency, host.drop)
+
+# Logistic regression model for Drop vs No Drop
+logit_model_drop_mp <- glm(host.drop ~ host.weight + thrash.frequency, 
+                           data = pulchricornis_data_drop, 
+                           family = binomial(link = "logit"))
+
+# Display summary of the logistic regression model
+summary(logit_model_drop_mp)
+
+# Predicted probabilities from the logistic regression model
+pulchricornis_data_drop$predicted_prob <- predict(logit_model_drop_mp, type = "response")
+
+# Plot predicted probabilities vs actual Drop status
+ggplot(pulchricornis_data_drop, aes(x = predicted_prob, fill = as.factor(host.drop))) +
+  geom_histogram(position = "dodge", binwidth = 0.05, alpha = 0.7, color = "black") +
+  labs(title = "Predicted Probability of Drop for M. pulchricornis",
+       x = "Predicted Probability", y = "Frequency", fill = "Drop Status") +
+  scale_fill_manual(values = c("0" = "blue", "1" = "red"), 
+                    labels = c("No Drop", "Drop")) +
+  theme_minimal()
+```

@@ -10,8 +10,7 @@ library(lmtest)    # For robust standard errors
 # Set file path (replace with your actual file path)
 file_path <- "data/parasitoid.xlsx"
 
-# Reading the data from the Excel file
-data <- read_excel(file_path)
+getwd()
 
 # --- Filtering data for M. mediator (mm) and Escape vs No Escape ---
 mediator_data_escape <- data %>% 
@@ -502,6 +501,113 @@ ggplot(pulchricornis_data_drop, aes(x = host.weight, fill = Drop)) +
        x = "Host Weight (mg)", y = "Frequency") +
   scale_fill_manual(values = c("Drop" = "green", "No Drop" = "orange")) +
   theme_minimal()
+
+
+# --- Convert handling.time and thrash.frequency to numeric if they're not already ---
+data$host.handling.time <- as.numeric(data$host.handling.time)
+data$thrash.frequency <- as.numeric(data$thrash.frequency)
+
+# --- Filter data for the two parasitoid species ---
+parasitoid_data <- data %>%
+  filter(wasp.species %in% c("mm", "mp")) %>%
+  select(thrash.frequency, host.handling.time, wasp.species)
+
+# Convert species to a binary variable (0 = mm, 1 = mp)
+parasitoid_data <- parasitoid_data %>%
+  mutate(wasp.species_binary = ifelse(wasp.species == "mp", 1, 0))
+
+# --- Logistic Regression Model ---
+logit_model <- glm(wasp.species_binary ~ thrash.frequency + host.handling.time, 
+                   data = parasitoid_data, 
+                   family = binomial(link = "logit"))
+
+# Summary of the logistic regression model
+summary(logit_model)
+
+# Predict the probability of being M. pulchricornis (mp)
+parasitoid_data$predicted_prob <- predict(logit_model, type = "response")
+
+# --- Scatter Plot with Predicted Probabilities ---
+ggplot(parasitoid_data, aes(x = thrash.frequency, y = host.handling.time, color = predicted_prob)) +
+  geom_point(size = 3, alpha = 0.7) +  # Scatter plot with points
+  scale_color_gradient(low = "blue", high = "red", name = "Probability of mp") +
+  labs(title = "Probability of M. pulchricornis vs Handling Time and Thrashing Frequency",
+       x = "Thrashing Frequency", 
+       y = "Handling Time (seconds)") +
+  theme_minimal() +
+  theme(
+    legend.position = "right",       # Position the legend on the right
+    panel.grid.major = element_line(color = "gray", size = 0.5),  # Gridlines
+    panel.grid.minor = element_blank()   # Remove minor gridlines
+  )
+
+
+# --- Convert handling.time and thrash.frequency to numeric if they're not already ---
+data$host.handling.time <- as.numeric(data$host.handling.time)
+data$thrash.frequency <- as.numeric(data$thrash.frequency)
+
+# --- Filter data for the two parasitoid species and prepare binary variable ---
+parasitoid_data <- data %>%
+  filter(wasp.species %in% c("mm", "mp")) %>%
+  select(thrash.frequency, host.handling.time, wasp.species) %>%
+  mutate(wasp.species_binary = ifelse(wasp.species == "mp", 1, 0))
+
+# --- Logistic Regression Model ---
+logit_model <- glm(wasp.species_binary ~ thrash.frequency + host.handling.time, 
+                   data = parasitoid_data, 
+                   family = binomial(link = "logit"))
+
+# --- Predict the probability of being M. pulchricornis (mp) ---
+parasitoid_data <- parasitoid_data %>%
+  mutate(predicted_prob = predict(logit_model, newdata = parasitoid_data, type = "response"))
+
+# --- Scatter Plot with Predicted Probabilities ---
+ggplot(parasitoid_data, aes(x = thrash.frequency, y = host.handling.time, color = predicted_prob)) +
+  geom_point(size = 3, alpha = 0.7) +  # Scatter plot with points
+  scale_color_gradient(low = "blue", high = "red", name = "Probability of mp") +
+  labs(title = "Probability of M. pulchricornis vs Handling Time and Thrashing Frequency",
+       x = "Thrashing Frequency", 
+       y = "Handling Time (seconds)") +
+  theme_minimal() +
+  theme(
+    legend.position = "right",       # Position the legend on the right
+    panel.grid.major = element_line(color = "gray", size = 0.5),  # Gridlines
+    panel.grid.minor = element_blank()   # Remove minor gridlines
+  )
+# Ensure handling time and thrashing frequency are numeric
+data$host.handling.time <- as.numeric(data$host.handling.time)
+data$thrash.frequency <- as.numeric(data$thrash.frequency)
+
+# Filter and prepare dataset
+parasitoid_data <- data %>%
+  filter(wasp.species %in% c("mm", "mp")) %>%
+  select(thrash.frequency, host.handling.time, wasp.species) %>%
+  mutate(wasp.species_binary = ifelse(wasp.species == "mp", 1, 0)) %>%
+  filter(!is.na(thrash.frequency) & !is.na(host.handling.time))  # Remove rows with NA
+
+# Logistic Regression Model
+logit_model <- glm(wasp.species_binary ~ thrash.frequency + host.handling.time, 
+                   data = parasitoid_data, 
+                   family = binomial(link = "logit"))
+
+# Add predicted probabilities to the dataset
+parasitoid_data <- parasitoid_data %>%
+  mutate(predicted_prob = predict(logit_model, newdata = parasitoid_data, type = "response"))
+
+# Scatter Plot With Predicted Probabilities
+ggplot(parasitoid_data, aes(x = thrash.frequency, y = host.handling.time, color = predicted_prob)) +
+  geom_point(size = 3, alpha = 0.7) +  # Scatter plot with points
+  scale_color_gradient(low = "blue", high = "red", name = "Probability of mp") +
+  labs(title = "Probability of M. pulchricornis vs Handling Time and Thrashing Frequency",
+       x = "Thrashing Frequency", 
+       y = "Handling Time (seconds)") +
+  theme_minimal() +
+  theme(
+    legend.position = "right",       # Position the legend on the right
+    panel.grid.major = element_line(color = "gray", size = 0.5),  # Gridlines
+    panel.grid.minor = element_blank()   # Remove minor gridlines
+  )
+
 
 
 
