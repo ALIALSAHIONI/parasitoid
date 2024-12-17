@@ -1,0 +1,129 @@
+---
+title: "GLM"
+author: "Amira-Aizada-Blessing-Sami-Ali"
+format: html
+editor: visual
+---
+
+```{r}
+library(ggplot2)   # For plotting
+library(dplyr)     # For data manipulation
+library(readxl)    # For reading Excel files
+library(sandwich)  # For robust standard errors
+library(lmtest)    # For robust standard errors
+```
+
+da 
+
+```{r}
+data <- read_excel("data/prasitoid.xlsx")
+
+```
+
+
+```{r}
+# Print the data
+print(data)
+data$host.handling.time[data$host.handling.time == "NA"] <- ""
+data$host.handling.time <- as.numeric(data$host.handling.time)
+
+```
+
+```{r}
+ # Remove rows with NA values
+glm_handling_time <- glm(host.handling.time ~ wasp.species + host.weight, data = data, family = gaussian())
+summary(glm_handling_time)
+glm_host_escape <- glm(host.escape ~ wasp.species + host.weight, data = data, family = binomial())
+summary(glm_host_escape)
+glm_host_drop <- glm(host.drop ~ wasp.species + host.weight, data = data, family = binomial())
+summary(glm_host_drop)
+glm_wasp_sting <- glm(wasp.sting ~ wasp.species + host.weight, data = data, family = binomial())
+summary(glm_wasp_sting)
+glm_thrash_frequency <- glm(thrash.frequency ~ wasp.species + host.weight, data = data, family = gaussian())
+summary(glm_thrash_frequency)
+ggplot(data, aes(x = host.weight, y = host.handling.time, color = wasp.species)) +
+  geom_point() +
+  geom_smooth(method = "glm", method.args = list(family = "gaussian")) +
+  labs(title = "Host Handling Time by Wasp Species and Host Weight")
+```
+```{r}
+
+sum(is.na(data$thrash.frequency))  # Count NAs in thrash.frequency
+sum(is.na(data$host.handling.time))  # Count NAs in host.handling.time
+
+data_clean <- data[!is.na(data$thrash.frequency) & !is.na(data$host.handling.time), ]
+summary(data_clean)
+```
+
+```{r}
+
+# Fit exponential model for each species
+fits <- data_clean %>%
+  group_by(wasp.species) %>%
+  summarise(
+    model = list(
+      tryCatch(
+        nls(host.handling.time ~ a * exp(b * thrash.frequency),
+            start = list(a = 1, b = 0.1),
+            data = cur_data()),
+        error = function(e) NULL
+      )
+    )
+  )
+
+# Create predictions
+predicted_data <- fits %>%
+  filter(!sapply(model, is.null)) %>% # Remove failed fits
+  rowwise() %>%
+  mutate(predictions = list(
+    data.frame(
+      thrash.frequency = seq(min(data_clean$thrash.frequency),
+                             max(data_clean$thrash.frequency), length.out = 100),
+      host.handling.time = predict(model, 
+                                   newdata = data.frame(
+                                     thrash.frequency = seq(min(data_clean$thrash.frequency),
+                                                          max(data_clean$thrash.frequency), length.out = 100))
+      ),
+      wasp.species = wasp.species
+    )
+  )) %>%
+  ungroup() %>%
+  select(predictions) %>%
+  unnest(cols = c(predictions))
+```
+
+```{r}
+install.packages("tidyr")
+library(tidyr)
+```
+
+
+```{r}
+# Corrected ggplot code (remove the unintended `-`)
+ggplot(data_clean, aes(x = thrash.frequency, y = host.handling.time, color = wasp.species)) +
+  geom_point() +
+  geom_line(data = predicted_data, aes(y = host.handling.time, color = wasp.species)) +
+  labs(title = "Thrash Frequency vs. Host Handling Time (Exponential Fit)", 
+       x = "Thrash Frequency", 
+       y = "Host Handling Time") +
+  theme_minimal()
+
+```
+
+```{r}
+knitr::knit_exit()
+
+```
+
+```{r}
+
+ggplot(data_clean, aes(x = thrash.frequency, y = host.handling.time)) +
+  geom_point() +
+  labs(title = "Simple Plot")
+
+str(data_clean)  # Check the structure of your dataset
+summary(data_clean)  # Check for any NA or unexpected values
+
+head(data_clean)
+
+```
