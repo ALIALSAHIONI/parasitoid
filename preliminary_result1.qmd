@@ -1,0 +1,88 @@
+---
+title: "Defensive Behaviour of M.separata in Response to Different parasitoids species"
+author: "BlessinG_Amira_Aizada_Sami_ALi"
+format: html
+editor: visual
+---
+
+# Loading the packages
+
+```{r}
+# Load necessary libraries
+library(ggplot2)   # For plotting
+library(dplyr)     # For data manipulation
+library(readxl)    # For reading Excel files
+library(sandwich)  # For robust standard errors
+library(lmtest)    # For robust standard errors
+```
+
+# Extracting the data
+
+```{r}
+# Set file path (replace with your actual file path)
+file_path <- "data/parasitoid.xlsx"
+
+d0 <- read_excel(file_path)
+```
+
+# **This script analyzes the relationship between host weight, thrashing frequency, and escape probability for *M. mediator* using logistic regression.**
+
+```{r}
+# --- Filtering d0 for M. mediator (mm) and Escape vs No Escape ---
+mediator_d0_escape <- d0 %>% 
+  filter(wasp.species == "mm") %>%
+  select(host.weight, thrash.frequency, host.escape) %>%
+  mutate(Escape = ifelse(host.escape == 1, "Escape", "No Escape"))
+
+# --- Logistic Regression Model: Escape vs No Escape ---
+# GLM for logistic regression (binary outcome: Escape vs No Escape)
+logit_model_escape <- glm(host.escape ~ host.weight + thrash.frequency, 
+                          data = mediator_d0_escape, family = binomial(link = "logit"))
+
+# --- Compute Robust Standard Errors ---
+robust_se <- sqrt(diag(vcovHC(logit_model_escape, type = "HC3")))  # Using HC3 for robust standard errors
+
+# Display the results with robust standard errors
+coeftest(logit_model_escape, vcov = vcovHC(logit_model_escape, type = "HC3"))
+
+# --- Predicted probabilities from the logistic regression model ---
+mediator_d0_escape$predicted_prob <- predict(logit_model_escape, type = "response")
+
+# --- Plot predicted probabilities vs actual Escape status ---
+ggplot(mediator_d0_escape, aes(x = predicted_prob, fill = Escape)) +
+  geom_histogram(position = "dodge", binwidth = 0.05, alpha = 0.7) + 
+  labs(title = "Predicted Probability of Escape vs Actual Escape for M. mediator",
+       x = "Predicted Probability", y = "Frequency") +
+  scale_fill_manual(values = c("Escape" = "blue", "No Escape" = "red")) +
+  theme_minimal()
+```
+
+# A logistic regression analysis was conducted to assess the relationship between host weight and thrashing frequency as predictors of escape behavior (Escape vs No Escape) for M. pulchricornis.
+
+```{r}
+#M. pulchricornis (mp) - Escape vs No Escape ---
+# Filter data for M. pulchricornis (mp) and select relevant columns
+pulchricornis_data_escape <- d0 %>% 
+  filter(wasp.species == "mp") %>%
+  select(host.weight, thrash.frequency, host.escape)
+
+# Logistic regression model for Escape vs No Escape
+logit_model_escape_mp <- glm(host.escape ~ host.weight + thrash.frequency, 
+                             data = pulchricornis_data_escape, 
+                             family = binomial(link = "logit"))
+
+# Display summary of the logistic regression model
+summary(logit_model_escape_mp)
+
+# Predicted probabilities from the logistic regression model
+pulchricornis_data_escape$predicted_prob <- predict(logit_model_escape_mp, type = "response")
+
+# Plot predicted probabilities vs actual Escape status
+ggplot(pulchricornis_data_escape, aes(x = predicted_prob, fill = as.factor(host.escape))) +
+  geom_histogram(position = "dodge", binwidth = 0.05, alpha = 0.7, color = "black") +
+  labs(title = "Predicted Probability of Escape for M. pulchricornis",
+       x = "Predicted Probability", y = "Frequency", fill = "Escape Status") +
+  scale_fill_manual(values = c("0" = "red", "1" = "blue"), 
+                    labels = c("No Escape", "Escape")) +
+  theme_minimal()
+```
