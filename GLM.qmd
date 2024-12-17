@@ -13,13 +13,12 @@ library(sandwich)  # For robust standard errors
 library(lmtest)    # For robust standard errors
 ```
 
-da 
+da
 
 ```{r}
 data <- read_excel("data/prasitoid.xlsx")
 
 ```
-
 
 ```{r}
 # Print the data
@@ -46,6 +45,7 @@ ggplot(data, aes(x = host.weight, y = host.handling.time, color = wasp.species))
   geom_smooth(method = "glm", method.args = list(family = "gaussian")) +
   labs(title = "Host Handling Time by Wasp Species and Host Weight")
 ```
+
 ```{r}
 
 sum(is.na(data$thrash.frequency))  # Count NAs in thrash.frequency
@@ -96,7 +96,6 @@ predicted_data <- fits %>%
 install.packages("tidyr")
 library(tidyr)
 ```
-
 
 ```{r}
 # Corrected ggplot code (remove the unintended `-`)

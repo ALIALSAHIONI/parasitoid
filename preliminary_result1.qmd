@@ -8,7 +8,18 @@ editor: visual
 # Extracting the data
 
 ```{r}
+library(dplyr)
+library(ggplot2)
+library(readxl)
+library(sandwich)
+library(lmtest)
+```
+
+
+
+```{r}
 # Set file path (replace with your actual file path)
+
 file_path <- "data/parasitoid.xlsx"
 
 d0 <- read_excel(file_path)
